@@ -1,0 +1,284 @@
+With 4.3, implementing 4A extension to the SOCKS 4 protocol,
+clients are no longer required to be able to resolve all
+internal and external domain names. They may rely on the SOCKS
+server to resolve names that they do not know. All 4.3 clients
+can still work with previous 4.x servers except when they expect
+the server to do name resolution for them, which is only available
+on 4.3 servers.
+
+With domain names now allowed in the configuration files for both the
+SOCKS server and the clients, it is much simpler to set up the
+configuration files. Most sites should find themselves needing nothing
+more elaborate than the two-liners below (replacing my.domain with
+your own domain name).
+
+For sockd.conf:
+
+deny  ALL 0.0.0.0  .my.domain 0.0.0.0
+permit  .my.domain 0.0.0.0  ALL 0.0.0.0
+
+
+For socks.conf:
+
+direct  .my.domain 0.0.0.0
+sockd  ALL 0.0.0.0
+
+
+4.3 servers work with all 4.x clients unless you build the server
+with NO_RBIND defined. The NO_RBIND servers does not support the
+facility of allowing incoming secondary connections such as those
+used in the normal mode of ftp. ftp (rftp) using PASSIVE mode works
+fine with NO_RBIND servers. No route file (/etc/sockd.route) is
+needed for NO_RBIND servers, even if they are multi-homed.
+
+Please see below for the procedure for building and testing. Since
+the configuration files now accept domain names which existing
+applications do not yet understand, a good way to ease the transition
+is to use a non-standard name for the new configuration (e.g.,
+/etc/socks.conf.new) and produce a frozen configurations from it using
+'make_socksfc /etc/socks.conf.new'. New applications can use the
+frozen configuration while existing ones can use the old
+configuration.
+
+The use of domain names in configuration files can greatly simplify
+their setup. On the other hand, it will also make SOCKS's actions
+depend heavily on your DNS (Domain Name System) setup. Be sure to
+read the man page on sockd.conf very carefully and consider how well
+you maaintain your DNS data if you want to use domain names in your
+configuration files.
+
+To join the SOCKS mailing list, please send an email subscription request
+to majordomo@socks.nec.com with
+
+	subscribe socks your@email.address
+
+in the body of the message.
+
+
+	Ying-Da Lee	yingda@best.com  or yingda@esd.sgi.com
+	http://www.best.com/~yingda/
+
+-------------------
+Please see the file CHANGES for things that are different from previous
+versions. I have incorporated patches and suggestions from many people,
+these are the ones that I have the records for:
+
+SAKAI Kiyotaka <ksakai@netwk.ntt-at.co.jp>
+Ted E. Keller <keller@bfg.com>
+Ian Dunkin <imd1707@ggr.co.uk>
+"Joe Rhett" <joe@navigist.com>
+rubenb@strat.jany.gs.com (W. Bradley Rubenstein)
+Laurent Julliard <Laurent.Julliard@Grenoble.RXRC.Xerox.com>
+larry.jones@sdrc.com (Larry Jones)
+Mark Powell <medp@primag.co.uk>
+Chuck Murcko <chuck@telebase.com>
+hal@netmarket.com (Hal Pomeranz)
+Damjan Lango <Damjan.Lango@snet.fer.uni-lj.si>
+ken_simpson@tmai.com (Kenneth Simpson)
+Russell Fulton <r.fulton@auckland.ac.nz>
+john@oaty.com (John Grant)
+Stanley Hu <hu@valisys.com>
+Chee-Wai Yeung <cheewai@cs.ust.hk>
+
+I am almost certain though that I lost a batch of mail messages
+when I changed my job. So please remind me so I don't let your
+contribution go unacknowledged. 
+
+====================================================================
+
+In the following section, by 'top directory' we mean the top
+directory of the SOCKS package, i.e., the directory you are
+in right now.
+
+-------------------------------------------------------------
+
+HOW TO BUILD THE PROGRAMS
+
+1. Check and modify the following files to suit your systems:
+
+	Makefile
+	include/socks.h
+
+   Be sure that the macro 'SOCKS_DEFAULT_SERVER' in include/socks.h
+   is set correctly to the host that will be running the proxy server
+   for your site.  Although this can be overridden at run time with
+   environment variable SOCKS_SERVER, it is a lot simpler if you put
+   in the right name at compile time. Also be sure to uncomment and set
+   the macro 'SOCKS_DEFAULT_NS' in the same file if your client machines
+   normally can't do DNS resolution for outside hosts.
+
+   Be sure that the macros 'ORIG_FINGER' and 'MULTIHOMED_SERVER' in
+   include/socks.h are set correctly.
+
+   If you need a large configuartion file with many rules for access
+   control (I have heard of sites with up to 2,000 lines in sockd.conf!),
+   you may want to use a stand-alone SOCKS server, i.e., one that runs
+   without the control of inetd. To build a stand-alone SOCKS server,
+   you must define the macro STAND_ALONE_SERVER in include/socks.h.
+
+   In most cases, you should have no needs to modify the Makefiles
+   in the subdirectories. But if you run into problems, you may
+   have to look into modifying
+
+	sockd/Makefile
+	libident/Makefile
+	lib/Makefile
+	rfinger/Makefile
+	rftp/Makefile
+	rtelnet/Makefile
+
+   If your system is not among those included in the top Makefile,
+   then you may also have to construct an entry for your system
+   in the file rtelnet/Config.local.
+
+2. cd to the top directory and issue 'make' command.  It's a good
+   idea to direct stdout and stderr to a file so that you can
+   see what's being done afterwards. There will be a few warning
+   messages which you can ignore. This builds the server as well
+   as all the clients.
+
+   If you only want to build the server, use command 'make server'
+   instead.  Use command 'make clients' to build only the client
+   programs. You can also build the individual clients using
+   'make RFINGER', 'make RFTP', and 'make RTELNET', all from the
+   top directory. Similarly, use 'make MKFC' from the top directory to
+   build the programs that produce and show the contents of frozen
+   configuration files.
+
+   If you are using gcc and it is having major fits with rtelnet,
+   add -traditional flag and try it again.
+
+3. All the man pages (except for libident) are in directory doc.
+   You are encouraged to print them out and read them before proceeding
+   to the next part.
+
+-------------------------------------------------------------
+
+HOW TO INSTALL THE SERVER
+
+1. Become superuser on the proxy server host for your site. 
+
+2. cd to the top directory and issue 'make install.server'.
+   This installs sockd and its man page.
+
+3. Add the line
+socks	1080/tcp
+   to file /etc/services. It would be nice also to include
+gopher	70/tcp
+WWW	80/tcp
+   in the file if you don't already have them.
+
+4. Set up access control file. Two lines in this file should
+   suffice for most sites:
+deny  ALL  0.0.0.0    .xyz.com  0.0.0.0
+permit  .xyz.com  0.0.0.0    ALL  0.0.0.0
+   Use your own domain in place of xyz.com in the lines above;
+   note the leading period before the domain name.
+   You may want to use the program make_sockdfc to produce
+   a frozen configuration after you have a stable setup for
+   your configuration. Frozen configuration can reduce the server's
+   startup time. Be sure to read the man page on sockd.conf
+   very carefully!
+
+5. If the server host is multi-homed and your server supports
+   RBIND (i.e., you built sockd with the macro MULTIHOMED_SERVER
+   in include/socks.h defined and NO_RBIND in the top Makefile
+   undefined), you must also supply the file /etc/sockd.route.
+   For a typical dual-homed server, this can simply be a one-liner:
+out_interface	0.0.0.0 0.0.0.0
+   where out_interface is the IP address of the server's network
+   interface leading to the outside world. The format for lines
+   in this file should be
+# comments
+Interface_addr	dst_addr dst_mask
+
+   Read the man page on sockd.route !!!
+
+6a. For sockd that is to be controlled through inetd (i.e.,
+   you made the server with STAND_ALONE_SERVER in include/socks.h
+   undefined):
+   Add the line
+socks	stream	tcp	nowait	nobody	/usr/etc/sockd	sockd
+   to file /etc/inetd.conf. Use the actual path where sockd
+   is installed if not in /usr/etc. If you want to make use of
+   identd on your client machines when it is available, use
+socks	stream	tcp	nowait	nobody	/usr/etc/sockd	sockd -i
+   If you want to REQUIRE identd be run on your client machines,
+   use
+socks	stream	tcp	nowait	nobody	/usr/etc/sockd	sockd -I
+   Running sockd with -I will reject all requests from hosts that
+   do not run identd.
+   Send a SIGHUP signal to the running inetd process so that it will
+   use the new configuration.
+
+6b. For stand-alone sockd (i.e., you made the server with
+   STAND_ALONE_SERVER in include/socks.h defined):
+   Just invoke the sockd program, e.g., /usr/etc/sockd. Use the
+   actual path where sockd is installed if not in /usr/etc. If you
+   want to make use of identd on your client machine when it is
+   available, use the -i option. If you want to REQUIRE identd be
+   run on your client machines, use the -I option.
+
+7. You may have to do some other things to accommodate syslog. Read
+   the man pages on syslogd and syslog.conf.
+
+8. If you are going to use a SOCKSified SOCKS server, please read
+   the man page on rsockd.
+
+-------------------------------------------------------------
+
+HOW TO TEST THE CLIENT PROGRAMS
+
+   NOTE: Build and install identd on your client hosts first. This is
+   required if you run sockd with -I option. It is a good idea anyway.
+
+   Set up the configuration file. This should normally be /etc/socks.conf.
+   However, if you have existing SOCKS clients and you want to use
+   domain names in the configuration, which the existing applications
+   do not understand, it's better to call it /etc/socks.conf.new and
+   use the command
+make_socksfc /etc/socks.conf.new
+   to produce frozen configuration for new SOCKS clients while the
+   existing ones continue to use the old configuration. For most sites,
+   two lines should suffice:
+direct .xyz.com 0.0.0.0
+sockd  ALL 0.0.0.0
+   Use your domain name in place of xyz.com in the first line; note
+   the period before the domain anme.
+
+   Read the man page on socks.conf !!!
+
+   On a client host (for testing purpose, this can be the same as
+   the proxy server), the clients rfinger, rwhois, rftp, and rtelnet,
+   can be tried out without any additional setup on the
+   client host once the server is running. They should behave like
+   finger, whois, ftp, and telnet, respectively. rftp DOES
+   echo your password IF you are using 'anonymous' as the log-in name.
+
+   Quite a lot of details of operations of both the clients and the
+   server are logged. Checking the contents of the log files may be
+   helpful when you run into problems. You should try using these
+   clients to connect to both inside and outside hosts and check the
+   log messages to see whether the correct ways are used.
+
+-------------------------------------------------------------
+
+HOW TO INSTALL CLIENT PROGRAMS
+
+1. Become superuser on the client host.
+
+2. cd to the top directory, then issue the command 'make install.clients'.
+   This installs rfinger, rwhois, rftp, rtelnet, and
+   their man pages.
+
+3. Rename your regular 'finger', 'whois', 'ftp', and 'telnet'
+   to something else. The new name for the 'finger' program
+   must be EXACTLY what you used for defining the macro ORIG_FINGER in
+   include/socks.h. Then either rename the SOCKS clients or use symbolic
+   links for them. For example, if you have installed the clients in
+   directory /usr/local/bin and your regular 'finger', 'whois', 'ftp',
+   and 'telnet' were in /usr/ucb, then you should do
+ln -s /usr/local/bin/rfinger /usr/ucb/finger
+ln -s /usr/local/bin/rftp /usr/ucb/ftp
+ln -s /usr/local/bin/rhwois /usr/ucb/whois
+ln -s /usr/local/bin/rtelnet /usr/ucb/telnet

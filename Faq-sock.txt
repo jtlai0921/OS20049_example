@@ -1,0 +1,287 @@
+
+
+          Question List (Last updated Sept 29, 1997):
+
+            1. What is SOCKS?
+            2. How is SOCKS V5 different from SOCKS V4?
+            3. Is SOCKS V5 interoperable with SOCKS V4?
+            4. Where can I get SOCKS?
+            5. Are there any SOCKS related mailing lists?
+            6. Can I use SOCKS with Windows?
+            7. Can I use SOCKS with a Mac?
+            8. What do I have to do to modify programs to use
+               SOCKS?
+            9. Does SOCKS handle UDP?
+           10. How does SOCKS interact with DNS?
+           11. What is a single-homed and multi-homed firewall?
+           12. Is there an RFC for SOCKS?
+           13. What does SOCKS stand for?
+           14. Why does the password echo when I run rftp?
+           15. How do you traverse multiple firewalls (socksified
+               SOCKS server?)
+           16. Why do I see "inetd[]: socks/tcp server failing
+               (looping)" in my logs?
+           17. Can I use SOCKS with a OS/2?
+           18. What causes the log message "incompatible version
+               number: 71"?
+           19. Can I put my application server behind my SOCKS
+               Server?
+           20. What causes the log message "Bind failed ...
+               Address already in use"?
+
+          --------------------------------------------------------
+
+          1. What is SOCKS?
+
+               SOCKS is a networking proxy protocol that enables
+               hosts on one side of SOCKS server to gain full
+               access to hosts on the other side of the SOCKS
+               server without requiring direct IP reachability.
+               SOCKS redirects connection requests from hosts on
+               opposite sides of a SOCKS server. The SOCKS server
+               authenticates and authorizes the requests,
+               establishes a proxy connection, and relays data.
+
+               SOCKS is commonly used as a network firewall that
+               enables hosts behind a SOCKS server to gain full
+               access to the Internet, while preventing
+               unauthorized access from the Internet to the
+               internal hosts.
+
+               There are two major versions of SOCKS: SOCKS V4 and
+               SOCKS V5. David Koblas is the original author.
+
+               Refer to http://www.socks.nec.com/ for more
+               information.
+
+          2. How is SOCKS V5 different from SOCKS V4?
+
+               The main differences between SOCKS V5 and SOCKS V4
+               are:
+
+                  o SOCKS V4 does not support authentication.
+                    SOCKS V5 supports a variety of authentication
+                    methods.
+                  o SOCKS V4 does not support UDP proxy. SOCKS V5
+                    does.
+
+                    Refer to Introduction to SOCKS for additional
+                    information.
+
+          3. Does SOCKS V5 work with SOCKS V4?
+
+               The SOCKS V5 protocol does not include a provision
+               to support SOCKS V4 protocol. NEC's socks5
+               implementation supports the SOCKS V4 protocol. The
+               server supports SOCKS V5 and SOCKS V4 clients, and
+               can communicate with other version 5 and 4 servers.
+
+          4. Where can I get SOCKS?
+
+               A SOCKS V4 implementation is available through
+               anonymous ftp from ftp://ftp.nec.com:/pub/socks/.
+               NEC's implementation of SOCKS V5 (socks5) is
+               available through http at
+               http://www.socks.nec.com/.
+
+               Both packages include clients for telnet, ftp,
+               finger, and whois. NEC's SOCKS5 implementation
+               includes archie, ping, and traceroute.
+
+               Several other clients are available in the same
+               ftp.nec.com directory and at
+               http://www.socks.nec.com/.
+
+               Hewlett Packard provides an internal implementation
+               of SOCKS, available at
+               ftp://ftp.cup.hp.com/dist/socks/socks.tar.gz
+
+               Many commercial products also include built-in
+               SOCKS protocol support.
+
+          5. Are there any SOCKS-related mailing lists?
+
+               Yes, there are three SOCKS related mailing lists:
+               socks, socks5, and sockscap. To join the SOCKS
+               mailing list, send an E-mail message to:
+
+                    majordomo@socks.nec.com
+
+               with no subject line and a one line body:
+
+                    subscribe <mailing-list>
+                    <your@email.address>
+
+               Correspond with members of the list by sending
+               E-mail to:
+
+                    <mailing-list>@socks.nec.com
+
+               All three mailing lists are archived at
+               http://www.socks.nec.com/
+
+          6. Can I use SOCKS with Windows?
+
+               Yes, NEC provides a Windows NT version of socks5
+               server, available at http://www.socks.nec.com/.
+
+               A number of WinSock DLL extensions enable
+               WinSock-based applications to use SOCKS:
+                  o SocksCap from NEC
+                  o AutoSOCKS from Aventail
+                  o Hummingbird's SOCKS Client from Hummingbird
+
+               There are also socksified WinSock Stacks, such as
+               Peter Tattam's Trumpet WinSock at
+               http://www.trumpet.com.au/wsk/winsock.htm.
+
+               Many commercial WinSock applications support SOCKS
+               protocol.
+
+          7. Can I use SOCKS with a Mac?
+
+               Netscape's Navigator, NCSA's Mosaic, Fetch 3.0 (ftp
+               client), Anarchie (archie/ftp client), Microsoft's
+               Internet Explorer, and PointCast's client support
+               SOCKS.
+
+          8. What do I have to do to modify programs to use SOCKS?
+
+               Refer to http://www.socks.nec.com/how2socksify.html
+               for specific socksification details. You need to
+               recompile the sources with pre-processor directives
+               to intercept some calls such as bind(). The socks5
+               library can socksify TCP and UDP applications and
+               the SOCKS V4 library can socksify TCP-based
+               programs.
+
+               NEC's socks5 package includes some UNIX socks5
+               client shared libraries that can dynamically
+               socksify programs without modifying or recompiling
+               them. Refer to http://www.socks.nec.com/.
+
+               See also Question 6.
+
+          9. Does SOCKS handle UDP?
+
+               socks5 does, SOCKS4 does not. NEC's socks5 package
+               includes a socksified archie client program that is
+               a UDP application. The RealAudio Player works with
+               runsocks (UNIX) and SocksCap (Windows).
+
+          10. How does SOCKS interact with DNS?
+
+               For SOCKS version 4.2 and earlier, SOCKS V4 clients
+               MUST resolve local and internet host IP addresses.
+               Configure DNS so that the SOCKS clients' resolver
+               can resolve the addresses. Multiple DNS servers
+               require special arrangements.
+
+               For the extended SOCKS version 4.3, SOCKS V4
+               clients can pass the unresolved addresses to the
+               SOCKS V4 extended servers for resolution.
+
+               For SOCKS V5, the clients can pass unresolved host
+               names to SOCKS V5 servers to resolve. SOCKS will
+               work if the SOCKS V5 client or SOCKS V5 servers can
+               resolve a host.
+
+          11. What is a single-homed and multi-homed firewall?
+
+               A multi-homed firewall has multiple network
+               interfaces and does not forward packets.
+               Single-homed firewalls have one network interface
+               card. Use a single-homed firewall with a choke
+               router that filters packets not originating from
+               the SOCKS server.
+
+          12. Is there an RFC for SOCKS?
+
+               There is no official RFC for Version 4 of the
+               protocol. There are two documents describing
+               Version 4: SOCKS V4 protocol and extension to SOCKS
+               V4 protocol.
+
+               There are three RFCs for SOCKS V5 related
+               protocols:
+                  o RFC1928 - Describes SOCKS Version 5 protocol,
+                    also known as Authenticated Firewall Traversal
+                    (AFT).
+                  o RFC1929 - Describes Username/Password
+                    authentication for SOCKS V5.
+                  o RFC1961 - Describes GSS-API authentication for
+                    SOCKS V5
+
+          13. What does SOCKS stand for?
+
+               SOCK-et-S - an internal development names that
+               remained after release
+
+          14. Why does the password echo when I run rftp?
+
+               The password only echoes for anonymous ftp. This is
+               considered a feature.
+
+          15. How do you traverse multiple firewalls (socksified
+          SOCKS server?)
+
+               Using the socksified SOCKS V4 server, rsockd,
+               included in the socks 4.3 beta release. See the
+               README file in the release.
+
+               NEC's socks5 package includes support to traverse
+               multiple SOCKS servers. Refer to
+               http://www.socks.nec.com/ for additional details.
+
+          16. Why do I see "inetd[]: socks/tcp server failing
+          (looping)" in my logs?
+
+               When the socks server running from inetd receives
+               too many connection requests, it displays this
+               message. Run the socks server as a standalone
+               daemon to solve the problem.
+
+          17. Can I use SOCKS with a OS/2?
+
+               Warp 4.0 has SOCKS V4 support integrated in the
+               TCP/IP stack.
+
+          18. What causes the log message "incompatible version
+          number: 71"?
+
+               socks displays this log message when someone tries
+               to use the SOCKS server as an HTTP proxy. Ascii
+               code 71 is the letter "G", the first letter of an
+               HTTP/1.0 request.
+
+          19. Can I put my application server behind my SOCKS
+          Server?
+
+               Yes and No.
+
+               Yes. All internal clients can directly access the
+               application server behind the SOCKS server.
+               External clients that know about your SOCKS server
+               may access the application server.
+
+               No. Public Internet web servers cannot be accessed
+               by external clients that do not know about your
+               SOCKS server.
+
+          20. What causes the log message "Bind failed ... Address
+          already in use"?
+
+               This log message occurs when the SOCKS server tries
+               to bind to a port that another process is using.
+               Typically, another SOCKS daemon is already running
+               or inetd is listening to the port. Use the "ps"
+               command to find and kill the other process or check
+               /etc/inetd.conf for a conflicting entry.
+
+          --------------------------------------------------------
+
+          Contributors:
+
+             * rk@Unify.Com - Ron Kuris, Unify Corporation
+             * steve@syl.dl.nec.com - Steven Lass, NEC USA
+             * wlu@syl.dl.nec.com - Wei Lu, NEC USA

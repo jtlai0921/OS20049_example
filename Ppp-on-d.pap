@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+TELEPHONE=phonenumber 		     # replace "phonenumber" with the number
+DIALSCRIPT=/tmp/dialscript.$$
+
+trap "rm -f ${DIALSCRIPT}" exit INT HUP QUIT
+
+umask 066
+cat <<EOF > ${DIALSCRIPT}
+TIMEOUT 30
+ABORT '\nBUSY\r'
+ABORT '\nNO CARRIER\r'
+ABORT '\nNO ANSWER\r'
+'' '\nAT\r'
+OK ATDT$TELEPHONE
+CONNECT ''
+EOF
+
+/usr/sbin/chat -v -f ${DIALSCRIPT}
+
